@@ -21,7 +21,7 @@ class ValueFunction(nn.Module):
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
         
         # Calculer la taille de la sortie après les convolutions
-        self._conv_output_dim = 17920 #self._get_conv_output_dim(height, width)
+        self._conv_output_dim = self._get_conv_output_dim(height, width) #17920
         
         # Couche Flatten pour aplatir les résultats des convolutions
         self.flatten = nn.Flatten()
@@ -62,3 +62,10 @@ class ValueFunction(nn.Module):
         x = self.fc2(x)  # La sortie du modèle, une estimation du reward
         
         return x
+    
+    def l1_regularization(self):
+        # Calcul de la régularisation L1 sur les poids des couches
+        l1_norm = 0
+        for param in self.parameters():
+            l1_norm += torch.sum(torch.abs(param))
+        return 0.5 * l1_norm

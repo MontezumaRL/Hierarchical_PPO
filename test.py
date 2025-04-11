@@ -1,2 +1,2 @@
-import torch
-print(torch.tensor([5]) - torch.tensor([3]))
+l = [[1,1,2], [1,1,2]]
+print(l[:])

@@ -68,6 +68,13 @@ class PolicyModel(nn.Module):
         
         return x
 
+    def l1_regularization(self):
+        # Calcul de la régularisation L1 sur les poids des couches
+        l1_norm = 0
+        for param in self.parameters():
+            l1_norm += torch.sum(torch.abs(param))
+        return 0.5 * l1_norm
+
     def copy_weights_from(self, other_model):
         """
         Copie les poids d'un autre modèle `other_model` vers le modèle actuel.
