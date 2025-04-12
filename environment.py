@@ -12,18 +12,18 @@ class MontezumaEnvironment:
         self.frame_stack = deque(maxlen=4)
         self.action_space = self.env.action_space
         self.n_actions = self.env.action_space.n
-        self.lives = 0  # Pour suivre le nombre de vies
+        self.lives = 0
 
     def reset(self):
         state = self.env.reset()[0]
         state = preprocess_frame(state)
 
-        # Initialiser le stack de frames
+        # Initialise framestack
         for _ in range(4):
             self.frame_stack.append(state)
         
-        # Initialiser le nombre de vies
-        _, _, _, _, info = self.env.step(0)  # Action NOOP pour obtenir info
+        # Initialise lifes
+        _, _, _, _, info = self.env.step(0)  # NOOP
         self.lives = info.get('lives', 0)
 
         return np.array(self.frame_stack)
@@ -58,7 +58,7 @@ class MontezumaEnvironment:
             axes[i].axis('off')
         plt.tight_layout()
         plt.savefig(save_path)
-        plt.close(fig)  # Ferme la figure pour libérer la mémoire
+        plt.close(fig)
         print(f"Frame stack sauvegardée dans {save_path}")
 
     def close(self):

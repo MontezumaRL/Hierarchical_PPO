@@ -1,9 +1,9 @@
 from math import sqrt
 
-def get_reward(state, num_lives, pos_x, pos_y):
-    pos_reward = -sqrt((pos_x-21)**2 + (pos_y - 196)**2)
-    life_reward = 20*num_lives
-    return pos_reward + life_reward
+def get_reward(num_lives):
+    reward_per_life = {6:100, 5:95, 4:90, 3:80, 2:35, 1:5, 0:0}
+    life_reward = reward_per_life[num_lives]
+    return life_reward
 
 def calculate_discounted_rewards(rewards, gamma=0.6, future_rewards_count=8):
     """

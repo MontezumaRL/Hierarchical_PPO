@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class PolicyModel(nn.Module):
-    def __init__(self, input_channels=3, height=189, width=144, hidden_units=256, output_size=18):
+    def __init__(self, input_channels=3, hidden_units=256, output_size=18):
         """
         Modèle CNN + MLP pour prédire un vecteur de probabilités de taille `output_size`.
         
@@ -16,20 +16,20 @@ class PolicyModel(nn.Module):
         """
         super(PolicyModel, self).__init__()
         
-        # Première couche CNN
+        # CNN Layer
         self.conv1 = nn.Conv2d(input_channels, 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
         
-        # Calculer la taille de la sortie après les convolutions
+        # Calculate output size
         self._conv_output_dim = 17920 #self._get_conv_output_dim(height, width)
         
-        # Couche Flatten pour aplatir les résultats des convolutions
+        # Flatten conv output
         self.flatten = nn.Flatten()
         
-        # Couche entièrement connectée (MLP)
+        # Dense Layer
         self.fc1 = nn.Linear(self._conv_output_dim, hidden_units)
-        self.fc2 = nn.Linear(hidden_units, output_size)  # Sortie de taille `output_size` (18)
+        self.fc2 = nn.Linear(hidden_units, output_size)
         
     def _get_conv_output_dim(self, height, width):
         """Calculer la dimension de la sortie après les couches de convolution"""
@@ -51,25 +51,22 @@ class PolicyModel(nn.Module):
         Returns:
         - Un vecteur de taille 18 (après softmax).
         """
-        # Passage à travers les couches convolutionnelles
+
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
-        
-        # Aplatir la sortie des convolutions avec la couche Flatten
+
         x = self.flatten(x)
-        
-        # Passage à travers les couches entièrement connectées (MLP)
+
         x = F.relu(self.fc1(x))
-        
-        # Passage de la sortie par softmax pour obtenir un vecteur de probabilités
+
         x = self.fc2(x)
-        x = F.softmax(x, dim=-1)  # Appliquer softmax sur la dernière dimension (output_size=18)
+        x = F.softmax(x, dim=-1)
         
         return x
 
     def l1_regularization(self):
-        # Calcul de la régularisation L1 sur les poids des couches
+        # Calculate the L1 Regularisation
         l1_norm = 0
         for param in self.parameters():
             l1_norm += torch.sum(torch.abs(param))
@@ -82,10 +79,9 @@ class PolicyModel(nn.Module):
         Parameters:
         - other_model (PolicyModel): Le modèle à partir duquel les poids seront copiés.
         """
-        # Assurez-vous que les deux modèles ont la même architecture
         if self.state_dict().keys() != other_model.state_dict().keys():
-            raise ValueError("Les modèles n'ont pas la même architecture.")
+            raise ValueError("Models' structure are different")
         
-        # Copiez les poids
+        # Copy weights
         self.load_state_dict(other_model.state_dict())
         print("Poids copiés avec succès.")

@@ -15,20 +15,20 @@ class ValueFunction(nn.Module):
         """
         super(ValueFunction, self).__init__()
         
-        # Première couche CNN
+        # CNN Layer
         self.conv1 = nn.Conv2d(input_channels, 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
         
-        # Calculer la taille de la sortie après les convolutions
+        # Calculate output size
         self._conv_output_dim = self._get_conv_output_dim(height, width) #17920
         
-        # Couche Flatten pour aplatir les résultats des convolutions
+        # Flatten conv output
         self.flatten = nn.Flatten()
         
-        # Couche entièrement connectée (MLP)
+        # Dense Layer
         self.fc1 = nn.Linear(self._conv_output_dim, hidden_units)
-        self.fc2 = nn.Linear(hidden_units, 1)  # Sortie à une dimension pour prédire le reward
+        self.fc2 = nn.Linear(hidden_units, 1)
         
     def _get_conv_output_dim(self, height, width):
         """Calculer la dimension de la sortie après les couches de convolution"""
@@ -49,22 +49,18 @@ class ValueFunction(nn.Module):
         Returns:
         - Une estimation du reward.
         """
-        # Passage à travers les couches convolutionnelles
+
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
-        
-        # Aplatir la sortie des convolutions avec la couche Flatten
         x = self.flatten(x)
-        
-        # Passage à travers les couches entièrement connectées (MLP)
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)  # La sortie du modèle, une estimation du reward
+        x = self.fc2(x)
         
         return x
     
     def l1_regularization(self):
-        # Calcul de la régularisation L1 sur les poids des couches
+        # Calculate the L1 Regularisation
         l1_norm = 0
         for param in self.parameters():
             l1_norm += torch.sum(torch.abs(param))
